@@ -1,11 +1,13 @@
 using ImageResizer.AspNetCore.Helpers;
-
+using ImageResizer.AspNetCore.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace TestExample
 {
@@ -42,9 +44,22 @@ namespace TestExample
                 app.UseExceptionHandler("/Home/Error");
             }
             //UseImageResizer
-            app.UseImageResizer();
+            app.UseImageResizer(new ImageResizerOptions
+            {
+                RootMapping =
+                {
+                    ["custom"] = Path.Combine(env.ContentRootPath, "Custom")
+                }
+            });
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "Custom")),
+                RequestPath = "/custom"
+            });
 
             app.UseStaticFiles();
+
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
