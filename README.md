@@ -60,8 +60,18 @@ Then this one :
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
   //...
-  app.UseStaticFiles();
-  app.UseImageResizer();
+  // Add only custom roots, wwwroot is by default
+  app.UseImageResizer(new ImageResizerOptions {
+    RootMapping = new Dictionary<string, string> {
+      ["custom"] = "C:\\Custom\\Folder"
+    }
+  });
+  app.UseStaticFiles(); // default wwwroot
+  app.UseStaticFiles(new StaticFileOptions
+  {
+      FileProvider = new PhysicalFileProvider("C:\\Custom\\Folder"),
+      RequestPath = "/custom"
+  });
   //...
 }
 ```
