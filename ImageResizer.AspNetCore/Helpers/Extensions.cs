@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using ImageResizer.AspNetCore.Models;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
+using System;
+using System.Collections.Generic;
 
 namespace ImageResizer.AspNetCore.Helpers
 {
@@ -11,9 +14,9 @@ namespace ImageResizer.AspNetCore.Helpers
             return services.AddMemoryCache();
         }
 
-        public static IApplicationBuilder UseImageResizer(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseImageResizer(this IApplicationBuilder builder, ImageResizerOptions options = null)
         {
-            return builder.UseMiddleware<ImageResizerMiddleware>();
+            return builder.UseMiddleware<ImageResizerMiddleware>(options);
         }
 
         internal static SKTextAlign GetSKTextAlign(this short align)

@@ -26,6 +26,7 @@ namespace ImageResizer.AspNetCore
         private readonly IMemoryCache _memoryCache;
         private WatermarkTextModel watermarkText;
         private WatermarkImageModel watermarkImage;
+        private ImageResizerOptions imageResizerOptions;
 
         private static readonly string[] suffixes = new string[] {
             ".png",
@@ -33,20 +34,29 @@ namespace ImageResizer.AspNetCore
             ".jpeg"
         };
 
-        public ImageResizerMiddleware(RequestDelegate req, IWebHostEnvironment env, ILogger<ImageResizerMiddleware> logger, IMemoryCache memoryCache)
+        public ImageResizerMiddleware(RequestDelegate req, IWebHostEnvironment env, ILogger<ImageResizerMiddleware> logger, IMemoryCache memoryCache, ImageResizerOptions options)
         {
             _req = req;
             _env = env;
             _logger = logger;
             _memoryCache = memoryCache;
-
+            imageResizerOptions = options ?? new ImageResizerOptions();
         }
         public async Task InvokeAsync(HttpContext context)
         {
-            var path = context.Request.Path;
-
             var rootPath = _env.WebRootPath ?? _env.ContentRootPath; //use web or content root path
 
+            var path = context.Request.Path;
+            var pathValue = path.Value;
+
+            var pathSplit = path.Value.Split("/");
+
+            if (pathSplit.Length > 1
+                && imageResizerOptions.RootMapping.ContainsKey(pathSplit[1].ToLower()))
+            {
+                rootPath = imageResizerOptions.RootMapping[pathSplit[1]];
+                pathValue = string.Join("/", pathSplit.Skip(2));
+            }
 
             // hand to next middleware if we are not dealing with an image
             if (context.Request.Query.Count == 0 || !IsImagePath(path))
@@ -94,7 +104,6 @@ namespace ImageResizer.AspNetCore
             // if we got this far, resize it
             _logger.LogInformation($"Resizing {path.Value} with params {resizeParams}");
             //update the path to deal with ";"
-            var pathValue = path.Value;
             if (pathValue.Contains(";"))
             {
                 pathValue = pathValue.Split(';')[0];
