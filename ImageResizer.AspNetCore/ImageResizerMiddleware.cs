@@ -54,7 +54,7 @@ namespace ImageResizer.AspNetCore
             if (pathSplit.Length > 1
                 && imageResizerOptions.RootMapping.ContainsKey(pathSplit[1].ToLower()))
             {
-                rootPath = imageResizerOptions.RootMapping[pathSplit[1]];
+                rootPath = imageResizerOptions.RootMapping[pathSplit[1].ToLower()];
                 pathValue = string.Join("/", pathSplit.Skip(2));
             }
 
