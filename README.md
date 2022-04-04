@@ -62,7 +62,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
   //...
   // Add only custom roots, wwwroot is by default
   app.UseImageResizer(new ImageResizerOptions {
-    RootMapping = new Dictionary<string, string> {
+    RootMapping = {
       ["custom"] = "C:\\Custom\\Folder"
     }
   });
